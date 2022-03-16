@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.EnrollmentMapper">
+    <resultMap id="result" type="persistence.dto.EnrollmentDTO">
+        <result property="이름" column="이름"/>
+        <result property="학번" column="학번"/>
+        <result property="전화번호" column="전화번호"/>
+        <result property="학년" column="학년"/>
+    </resultMap>
+
+    <resultMap id="resultSubjectName" type="persistence.dto.EnrollmentDTO">
+        <result property="교과목명" column="교과목명"/>
+        <result property="개설과목ID" column="개설과목ID"/>
+        <result property="강의시간" column="강의시간"/>
+        <result property="강의실" column="강의실"/>
+    </resultMap>
+
+
+
+    <insert id="insert">
+        INSERT INTO 수강신청
+        (학번, 개설과목ID)
+        VALUES
+        (#{학번}, #{개설과목ID})
+    </insert>
+
+    <select id ="select" resultMap="result">
+        SELECT 학생.이름, 학생.학번, 학생.전화번호, 학생.학년 FROM 수강신청 JOIN 학생 ON 학생.학번 = 수강신청.학번 WHERE 개설과목ID = #{개설과목ID}
+    </select>
+
+    <select id="selectSubjectName" resultMap="resultSubjectName">
+        SELECT 교과목.교과목명, 개설교과목.개설과목ID, 개설교과목.강의시간, 개설교과목.강의실 FROM 수강신청 JOIN 개설교과목 ON 수강신청.개설과목ID = 개설교과목.개설과목ID JOIN 교과목 ON 개설교과목.교과목ID = 교과목.교과목ID WHERE 수강신청.학번 = #{학번}
+    </select>
+
+    <delete id="delete">
+        delete from 수강신청 where 학번 = #{학번} AND 개설과목ID = #{개설과목ID}
+    </delete>
+
+
+</mapper>

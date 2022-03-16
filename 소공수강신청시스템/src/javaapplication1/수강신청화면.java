@@ -1,0 +1,933 @@
+package javaapplication1;
+
+import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+public class 수강신청화면 extends javax.swing.JFrame {
+    static public String 학번;
+    static public String 학년;
+    static public String 소속코드;
+    static public int 가능학점;
+    /** Creates new form 수강신청화면 */
+    public 수강신청화면() {
+        initComponents();
+    }
+    public 수강신청화면(String ID) {
+        initComponents();
+        학번 = ID;
+        가능학점 = 21;
+        학생정보알아오기(학번);
+        ResultSet 신청가능전공 = 신청가능전공과목알아오기(학년, 소속코드);
+
+        
+        
+
+    }
+ResultSet 신청가능전공과목알아오기(String 학년, String 소속코드)
+{
+    Connection conn = null;
+    ResultSet 전공 =null;
+    ResultSet 교과과정코드 = null;
+    ResultSet 전공개설과목 = null;
+    ResultSet 학년전공과목 = null;
+
+    DBConn dbconn = new DBConn();
+    conn = dbconn.getConnection();
+
+    DefaultTableModel table = (DefaultTableModel)this.jTable5.getModel();
+    
+    try {
+        Statement stmt1 = conn.createStatement();
+
+        String query1 = "select 교과과정코드 from 교과과정 where 교과과정.소속코드 ='"+소속코드+"'";
+        교과과정코드 = stmt1.executeQuery(query1);
+        int i= 0;
+        while(교과과정코드.next()){
+            Statement stmt3 = conn.createStatement();
+            String query3= "select * from 교과과정내역 where 교과과정내역.교과과정코드 ='"+ 교과과정코드.getString("교과과정코드") +"' "
+                    + "and 교과과정내역.학년 = '"+ 학년 +"'";
+            학년전공과목 = stmt3.executeQuery(query3);
+            while(학년전공과목.next())
+        {
+            Statement stmt4 = conn.createStatement();
+
+            String query4= "select * from 개설과목 where 개설과목.과목코드 ='"+학년전공과목.getString("과목코드")+"'";
+            전공개설과목 = stmt4.executeQuery(query4);
+            
+            
+            while(전공개설과목.next())
+           {
+               Object[] row = new Object[12];
+               row[1] = 학년전공과목.getString("교과목구분");
+               row[11] = 전공개설과목.getString("제한인원");
+               row[2] = 전공개설과목.getString("과목코드");
+               row[3] = 전공개설과목.getString("분반");
+               row[6] = 학년;
+               row[5] = "소프트웨어공학"; 
+               Statement stmt5 = conn.createStatement();
+               String query5= "select * from 과목 where 과목.과목코드 ='"+전공개설과목.getString("과목코드")+"'";
+               ResultSet 교과목명 = stmt5.executeQuery(query5);
+               while(교과목명.next())
+               {
+                   row[4] = 교과목명.getString("교과목명");
+                   row[7] = 교과목명.getString("학점");
+               }
+               
+               Statement stmt6 = conn.createStatement();
+               String query6= "select * from 강의담당교수 where 강의담당교수.과목코드 ='"+전공개설과목.getString("과목코드")+"' "
+                       + "and 강의담당교수.분반 ='"+전공개설과목.getString("분반")+"'";
+               ResultSet 담당교수코드 = stmt6.executeQuery(query6);
+               while(담당교수코드.next())
+               {
+                    Statement stmt7 = conn.createStatement();
+                    String query7= "select * from 교수 where 교수.교수코드 ='"+담당교수코드.getString("교수코드")+"' ";
+                    ResultSet 담당교수 = stmt7.executeQuery(query7);
+                    while(담당교수.next())
+                    {
+                        row[8] = 담당교수.getString("이름");
+                    }
+               }
+
+               Statement stmt8 = conn.createStatement();
+               String query8= "select * from 강의시간표 where 강의시간표.과목코드 ='"+전공개설과목.getString("과목코드")+"' "
+                       + "and 강의시간표.분반 ='"+전공개설과목.getString("분반")+"'";
+               ResultSet 강의시간 = stmt8.executeQuery(query8);
+               while(강의시간.next())
+               {
+                   row[10] = 강의시간.getString("강의시간");
+               }
+
+                i++;
+             table.addRow(row);
+           }
+             
+        }
+          
+        }
+       
+ 
+
+    } catch (Exception e) {
+        System.out.println("Error");
+    }
+
+    return 전공;
+}
+void 학생정보알아오기(String 학번)
+{
+    Connection conn = null;
+    ResultSet 학생테이블 =null;
+
+    DBConn dbconn = new DBConn();
+    conn = dbconn.getConnection();
+
+    try {
+        Statement stmt1 = conn.createStatement();
+
+           String query1 = "select * from 학생 where 학번 ='"+학번+"'";
+           학생테이블 = stmt1.executeQuery(query1);
+
+            while(학생테이블.next()){
+                학년 = 학생테이블.getString("학년");
+                소속코드 = 학생테이블.getString("소속코드");
+                jTextField1.setText("2010");
+                jTextField2.setText("소프트웨어공학과");
+                jTextField3.setText("");// 교직이수
+                jTextField4.setText(학번);
+                jTextField5.setText(학년);
+                jTextField6.setText(Integer.toString(가능학점));//가능학점
+                jTextField7.setText(학생테이블.getString("성명"));
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error");
+        }
+}
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jTextField2 = new javax.swing.JTextField();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
+        jTextField5 = new javax.swing.JTextField();
+        jTextField6 = new javax.swing.JTextField();
+        jTextField7 = new javax.swing.JTextField();
+        jPanel3 = new javax.swing.JPanel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable5 = new javax.swing.JTable();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTable4 = new javax.swing.JTable();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTable6 = new javax.swing.JTable();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTable7 = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        jLabel10 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButton2 = new javax.swing.JButton();
+        저장 = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        jTable8 = new javax.swing.JTable();
+        jLabel11 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("수강신청화면");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
+
+        jLabel1.setText("년도");
+
+        jLabel2.setText("학과");
+
+        jLabel3.setText("교직");
+
+        jLabel4.setText("학번");
+
+        jLabel5.setText("학년");
+
+        jLabel6.setText("신청가능학점");
+
+        jLabel7.setText("성명");
+
+        jTextField1.setEditable(false);
+        jTextField1.setText("jTextField1");
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+
+        jTextField2.setEditable(false);
+        jTextField2.setText("jTextField2");
+
+        jTextField3.setEditable(false);
+        jTextField3.setText("jTextField3");
+
+        jTextField4.setEditable(false);
+        jTextField4.setText("jTextField4");
+
+        jTextField5.setEditable(false);
+        jTextField5.setText("jTextField5");
+
+        jTextField6.setEditable(false);
+        jTextField6.setText("jTextField6");
+
+        jTextField7.setEditable(false);
+        jTextField7.setText("jTextField7");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel7)
+                .addGap(55, 55, 55)
+                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(173, 173, 173))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel7)
+                        .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jTable5.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "신청", "이수구분", "과목", "분반", "과목명", "대상학과", "학년", "학점", "담당교수", "공학인증", "강의시간", "정원"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable5.getTableHeader().setReorderingAllowed(false);
+        jTable5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable5MouseClicked(evt);
+            }
+        });
+        jScrollPane6.setViewportView(jTable5);
+        jTable5.getColumnModel().getColumn(0).setResizable(false);
+        jTable5.getColumnModel().getColumn(1).setResizable(false);
+        jTable5.getColumnModel().getColumn(2).setResizable(false);
+        jTable5.getColumnModel().getColumn(3).setResizable(false);
+        jTable5.getColumnModel().getColumn(4).setResizable(false);
+        jTable5.getColumnModel().getColumn(5).setResizable(false);
+        jTable5.getColumnModel().getColumn(6).setResizable(false);
+        jTable5.getColumnModel().getColumn(7).setResizable(false);
+        jTable5.getColumnModel().getColumn(8).setResizable(false);
+        jTable5.getColumnModel().getColumn(9).setResizable(false);
+        jTable5.getColumnModel().getColumn(10).setResizable(false);
+        jTable5.getColumnModel().getColumn(11).setResizable(false);
+
+        jTabbedPane1.addTab("전공", jScrollPane6);
+
+        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "신청", "이수구분", "과목", "분반", "과목명", "대상학과", "학년", "학점", "담당교수", "공학인증", "강의시간", "정원"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable4.getTableHeader().setReorderingAllowed(false);
+        jScrollPane5.setViewportView(jTable4);
+        jTable4.getColumnModel().getColumn(0).setResizable(false);
+        jTable4.getColumnModel().getColumn(1).setResizable(false);
+        jTable4.getColumnModel().getColumn(2).setResizable(false);
+        jTable4.getColumnModel().getColumn(3).setResizable(false);
+        jTable4.getColumnModel().getColumn(4).setResizable(false);
+        jTable4.getColumnModel().getColumn(5).setResizable(false);
+        jTable4.getColumnModel().getColumn(6).setResizable(false);
+        jTable4.getColumnModel().getColumn(7).setResizable(false);
+        jTable4.getColumnModel().getColumn(8).setResizable(false);
+        jTable4.getColumnModel().getColumn(9).setResizable(false);
+        jTable4.getColumnModel().getColumn(10).setResizable(false);
+        jTable4.getColumnModel().getColumn(11).setResizable(false);
+
+        jTabbedPane1.addTab("기초도구필수", jScrollPane5);
+
+        jTable6.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "신청", "이수구분", "과목", "분반", "과목명", "대상학과", "학년", "학점", "담당교수", "공학인증", "강의시간", "정원"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable6.getTableHeader().setReorderingAllowed(false);
+        jScrollPane7.setViewportView(jTable6);
+        jTable6.getColumnModel().getColumn(0).setResizable(false);
+        jTable6.getColumnModel().getColumn(1).setResizable(false);
+        jTable6.getColumnModel().getColumn(2).setResizable(false);
+        jTable6.getColumnModel().getColumn(3).setResizable(false);
+        jTable6.getColumnModel().getColumn(4).setResizable(false);
+        jTable6.getColumnModel().getColumn(5).setResizable(false);
+        jTable6.getColumnModel().getColumn(6).setResizable(false);
+        jTable6.getColumnModel().getColumn(7).setResizable(false);
+        jTable6.getColumnModel().getColumn(8).setResizable(false);
+        jTable6.getColumnModel().getColumn(9).setResizable(false);
+        jTable6.getColumnModel().getColumn(10).setResizable(false);
+        jTable6.getColumnModel().getColumn(11).setResizable(false);
+
+        jTabbedPane1.addTab("일반", jScrollPane7);
+
+        jTable7.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "신청", "이수구분", "과목", "분반", "과목명", "대상학과", "학년", "학점", "담당교수", "공학인증", "강의시간", "정원"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable7.getTableHeader().setReorderingAllowed(false);
+        jScrollPane8.setViewportView(jTable7);
+        jTable7.getColumnModel().getColumn(0).setResizable(false);
+        jTable7.getColumnModel().getColumn(1).setResizable(false);
+        jTable7.getColumnModel().getColumn(2).setResizable(false);
+        jTable7.getColumnModel().getColumn(3).setResizable(false);
+        jTable7.getColumnModel().getColumn(4).setResizable(false);
+        jTable7.getColumnModel().getColumn(5).setResizable(false);
+        jTable7.getColumnModel().getColumn(6).setResizable(false);
+        jTable7.getColumnModel().getColumn(7).setResizable(false);
+        jTable7.getColumnModel().getColumn(8).setResizable(false);
+        jTable7.getColumnModel().getColumn(9).setResizable(false);
+        jTable7.getColumnModel().getColumn(10).setResizable(false);
+        jTable7.getColumnModel().getColumn(11).setResizable(false);
+
+        jTabbedPane1.addTab("교직", jScrollPane8);
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "신청", "이수구분", "과목", "분반", "과목명", "대상학과", "학년", "학점", "담당교수", "공학인증", "강의시간", "정원"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable2.getTableHeader().setReorderingAllowed(false);
+        jScrollPane3.setViewportView(jTable2);
+        jTable2.getColumnModel().getColumn(0).setResizable(false);
+        jTable2.getColumnModel().getColumn(1).setResizable(false);
+        jTable2.getColumnModel().getColumn(2).setResizable(false);
+        jTable2.getColumnModel().getColumn(3).setResizable(false);
+        jTable2.getColumnModel().getColumn(4).setResizable(false);
+        jTable2.getColumnModel().getColumn(5).setResizable(false);
+        jTable2.getColumnModel().getColumn(6).setResizable(false);
+        jTable2.getColumnModel().getColumn(7).setResizable(false);
+        jTable2.getColumnModel().getColumn(8).setResizable(false);
+        jTable2.getColumnModel().getColumn(9).setResizable(false);
+        jTable2.getColumnModel().getColumn(10).setResizable(false);
+        jTable2.getColumnModel().getColumn(11).setResizable(false);
+
+        jTabbedPane1.addTab("교양필수", jScrollPane3);
+
+        jLabel10.setText("[개설강좌]");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel10)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 813, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jLabel10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))
+        );
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"학점", null, null, null, null}
+            },
+            new String [] {
+                "이수구분", "교필", "전선", "전필", "총계"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable1.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(jTable1);
+        jTable1.getColumnModel().getColumn(0).setResizable(false);
+        jTable1.getColumnModel().getColumn(1).setResizable(false);
+        jTable1.getColumnModel().getColumn(2).setResizable(false);
+        jTable1.getColumnModel().getColumn(3).setResizable(false);
+        jTable1.getColumnModel().getColumn(4).setResizable(false);
+
+        jButton2.setText("나가기");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        저장.setText("저장");
+        저장.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                저장ActionPerformed(evt);
+            }
+        });
+
+        jTable8.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "삭제", "과목", "분반", "과목명", "학점", "이수구분", "담당교수", "공학인증", "재수강여부", "강의시간"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, false, false, false, true, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable8.getTableHeader().setReorderingAllowed(false);
+        jTable8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable8MouseClicked(evt);
+            }
+        });
+        jScrollPane9.setViewportView(jTable8);
+        jTable8.getColumnModel().getColumn(0).setResizable(false);
+        jTable8.getColumnModel().getColumn(1).setResizable(false);
+        jTable8.getColumnModel().getColumn(2).setResizable(false);
+        jTable8.getColumnModel().getColumn(3).setResizable(false);
+        jTable8.getColumnModel().getColumn(4).setResizable(false);
+        jTable8.getColumnModel().getColumn(5).setResizable(false);
+        jTable8.getColumnModel().getColumn(6).setResizable(false);
+        jTable8.getColumnModel().getColumn(7).setResizable(false);
+        jTable8.getColumnModel().getColumn(8).setResizable(false);
+        jTable8.getColumnModel().getColumn(9).setResizable(false);
+
+        jLabel11.setText("[수강신청]");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel11)
+                .addContainerGap(755, Short.MAX_VALUE))
+            .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 815, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43)
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGap(630, 630, 630)
+                        .addComponent(저장, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(22, 22, 22))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 825, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(저장)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jTable5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable5MouseClicked
+        // TODO add your handling code here:
+        int row = jTable5.getSelectedRow();
+        if(row<0) return;
+
+        TableModel tm = jTable5.getModel();
+        DefaultTableModel table = (DefaultTableModel)this.jTable8.getModel();
+        Object[] row1 = new Object[10];
+        row1[3] = tm.getValueAt(row, 4);
+        row1[1] = tm.getValueAt(row, 2).toString();
+        row1[2] = tm.getValueAt(row, 3);
+        row1[5] = tm.getValueAt(row, 1);
+        row1[4] = tm.getValueAt(row, 7);
+        row1[6] = tm.getValueAt(row, 8);
+        row1[9] = tm.getValueAt(row, 10);
+
+        boolean 추가여부 = 이미추가됨(row1[1].toString());
+
+        if(추가여부 == true){
+            JOptionPane.showMessageDialog(null, "이미 등록된 과목입니다.");
+            return;
+        }
+        
+        int 총학점 = 총신청학점();
+        if((총학점 + Integer.parseInt(row1[4].toString())) > 가능학점)
+        {
+            JOptionPane.showMessageDialog(null, "신청가능학점이 초과되었습니다.");
+            return;
+        }
+
+        boolean 중복여부 = 시간중복됨(row1[9].toString());
+        if(중복여부 == true){
+            JOptionPane.showMessageDialog(null, "신청강의시간이 중복되었습니다.");
+            return;
+        }
+        
+        table.addRow(row1);
+        총학점 = 총신청학점();
+        jTable1.setValueAt(총학점, 0, 4);
+        테이블1채우기();
+    }//GEN-LAST:event_jTable5MouseClicked
+
+
+    void 테이블1채우기()
+    {
+        TableModel tm = this.jTable8.getModel();
+        int i=0;
+        int 전필 = 0;
+        int 전선 = 0;
+        int 교양 = 0;
+        while(i<tm.getRowCount())
+        {
+            if(tm.getValueAt(i, 5).equals("교양"))
+               교양 = 교양 + Integer.parseInt(tm.getValueAt(i, 4).toString());
+
+            if(tm.getValueAt(i, 5).equals("전선"))
+               전선 = 전선 + Integer.parseInt(tm.getValueAt(i, 4).toString());
+
+            if(tm.getValueAt(i, 5).equals("전필"))
+               전필 = 전필 + Integer.parseInt(tm.getValueAt(i, 4).toString());
+            i++;
+        }
+
+
+        jTable1.setValueAt(교양, 0, 1);
+        jTable1.setValueAt(전선, 0, 2);
+        jTable1.setValueAt(전필, 0, 3);
+    }
+    int 총신청학점()
+    {
+        TableModel tm = this.jTable8.getModel();
+        int i=0;
+        int total = 0;
+        while(i<tm.getRowCount())
+        {
+            total = total + Integer.parseInt(tm.getValueAt(i, 4).toString());
+            i++;
+        }
+        return total;
+    }
+    private void jTable8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable8MouseClicked
+        // TODO add your handling code here:
+        int row = jTable8.getSelectedRow();
+        if(row<0) return;
+
+        DefaultTableModel table = (DefaultTableModel)this.jTable8.getModel();
+        table.removeRow(row);
+    }//GEN-LAST:event_jTable8MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void 저장ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_저장ActionPerformed
+        Connection conn = null;
+        ResultSet 학생테이블 =null;
+        int cnt= 0;
+        PreparedStatement pstmt=null;
+        DBConn dbconn = new DBConn();
+        conn = dbconn.getConnection();
+
+        try {
+            Statement stmt1 = conn.createStatement();
+
+            String delete_query = "delete from 수강신청과목 where 학번='" + 학번 + "'";
+            stmt1.executeUpdate(delete_query);
+
+            String query1 = "insert into 수강신청과목(분반, 교과과정코드, 과목코드, 재수강여부, 학번) values(?, ?, ?, ?, '" + 학번+"')";
+            for(int i=0; i<jTable8.getRowCount(); i++){
+                pstmt = conn.prepareStatement(query1);
+                pstmt.setString(1, (String)jTable8.getValueAt(i, 2));
+                pstmt.setString(2, ((String)jTable8.getValueAt(i, 1)).substring(0, 3));
+                pstmt.setString(3, (String)jTable8.getValueAt(i, 1));
+                pstmt.setString(4, String.valueOf(0));
+                cnt +=  pstmt.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(cnt>=0) JOptionPane.showMessageDialog(null, "저장되었습니다.");
+
+    }//GEN-LAST:event_저장ActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        DefaultTableModel table = (DefaultTableModel)this.jTable8.getModel();
+        Connection conn = null;
+        ResultSet rs =null;
+        DBConn dbconn = new DBConn();
+        conn = dbconn.getConnection();
+
+        Object[] row = new Object[10];
+
+        try {
+            Statement stmt1 = conn.createStatement();
+            String query1= "select * from 수강신청과목 where 수강신청과목.학번 ='"+학번+"'";
+            ResultSet 수강코드 = stmt1.executeQuery(query1);
+            while(수강코드.next())
+            {
+                row[1] = 수강코드.getString("과목코드");
+                row[2] = 수강코드.getString("분반");
+
+                Statement stmt2 = conn.createStatement();
+               String query2= "select * from 과목 where 과목.과목코드 ='"+수강코드.getString("과목코드")+"'";
+               ResultSet 교과목명 = stmt2.executeQuery(query2);
+               while(교과목명.next())
+               {
+                   row[3] = 교과목명.getString("교과목명");
+                   row[4] = 교과목명.getString("학점");
+               }
+
+               Statement stmt6 = conn.createStatement();
+               String query6= "select * from 강의담당교수 where 강의담당교수.과목코드 ='"+수강코드.getString("과목코드")+"' "
+                       + "and 강의담당교수.분반 ='"+수강코드.getString("분반")+"'";
+               ResultSet 담당교수코드 = stmt6.executeQuery(query6);
+               while(담당교수코드.next())
+               {
+                    Statement stmt7 = conn.createStatement();
+                    String query7= "select * from 교수 where 교수.교수코드 ='"+담당교수코드.getString("교수코드")+"' ";
+                    ResultSet 담당교수 = stmt7.executeQuery(query7);
+                    while(담당교수.next())
+                    {
+                        row[6] = 담당교수.getString("이름");
+                    }
+               }
+
+               Statement stmt8 = conn.createStatement();
+               String query8= "select * from 강의시간표 where 강의시간표.과목코드 ='"+수강코드.getString("과목코드")+"' "
+                       + "and 강의시간표.분반 ='"+수강코드.getString("분반")+"'";
+               ResultSet 강의시간 = stmt8.executeQuery(query8);
+               while(강의시간.next())
+               {
+                   row[9] = 강의시간.getString("강의시간");
+               }
+
+                Statement stmt3 = conn.createStatement();
+            String query3= "select * from 교과과정내역 where 교과과정내역.과목코드 ='"+ 수강코드.getString("과목코드") +"' ";
+            ResultSet 이수구분 = stmt3.executeQuery(query3);
+             while(이수구분.next())
+               {
+                   row[5] = 이수구분.getString("교과목구분");
+               }
+               table.addRow(row);
+            }
+
+            int 총학점 = 총신청학점();
+        jTable1.setValueAt(총학점, 0, 4);
+        테이블1채우기();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_formWindowOpened
+
+    boolean 이미추가됨(String 과목명)
+    {
+        TableModel tm = this.jTable8.getModel();
+        int i=0;
+        while(i<tm.getRowCount())
+        {
+            if(tm.getValueAt(i, 1).toString().equals(과목명) == true)
+            {
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    boolean 시간중복됨(String 강의시간)
+    {
+        TableModel tm = this.jTable8.getModel();
+        int i=0;
+        while(i<tm.getRowCount())
+        {
+            if(tm.getValueAt(i, 9).toString().equals(강의시간) == true)
+            {
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+    /**
+    * @param args the command line arguments
+    */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new 수강신청화면().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTable4;
+    private javax.swing.JTable jTable5;
+    private javax.swing.JTable jTable6;
+    private javax.swing.JTable jTable7;
+    private javax.swing.JTable jTable8;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jTextField7;
+    private javax.swing.JButton 저장;
+    // End of variables declaration//GEN-END:variables
+
+}

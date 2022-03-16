@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.SubjectMapper">
+    <resultMap id="result" type="persistence.dto.SubjectDTO">
+        <result property="교과목ID" column="교과목ID"/>
+        <result property="교과목명" column="교과목명"/>
+        <result property="학점" column="학점"/>
+        <result property="학년" column="학년"/>
+        <result property="교과목구분" column="교과목구분"/>
+        <result property="학기" column="학기"/>
+    </resultMap>
+
+    <select id = "selectAll" resultMap="result">
+        SELECT * FROM 교과목
+    </select>
+
+
+    <select id = "selectWithGrade" resultMap="result">
+        SELECT * FROM 교과목 WHERE 학년 = #{학년}
+    </select>
+
+    <select id = "selectWithId" resultMap="result">
+        SELECT * FROM 교과목 WHERE 교과목ID = #{교과목ID}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO 교과목
+        (교과목ID, 교과목명, 학점, 학년, 교과목구분, 학기)
+        VALUES
+        (#{교과목ID}, #{교과목명}, #{학점}, #{학년}, #{교과목구분}, #{학기})
+    </insert>
+
+    <update id = "updateName">
+        UPDATE 교과목 SET 교과목명 = #{교과목명} WHERE 교과목ID = #{교과목ID}
+    </update>
+
+    <update id = "updateGrades">
+        UPDATE 교과목 SET 학점 = #{학점} WHERE 교과목ID = #{교과목ID}
+    </update>
+
+    <update id = "updateGrade">
+        UPDATE 교과목 SET 학년 = #{학년} WHERE 교과목ID = #{교과목ID}
+    </update>
+
+    <update id = "updateSubjectClassify">
+        UPDATE 교과목 SET 교과목구분 = #{교과목구분} WHERE 교과목ID = #{교과목ID}
+    </update>
+
+    <update id = "updateSemester">
+        UPDATE 교과목 SET 학기 = #{학기} WHERE 교과목ID = #{교과목ID}
+    </update>
+
+
+    <delete id = "delete">
+        delete from 교과목 WHERE 교과목ID = #{교과목ID}
+    </delete>
+
+</mapper>
+
