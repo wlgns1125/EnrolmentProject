@@ -7,6 +7,8 @@ import java.util.Scanner;
 import static Protocol.Protocol.*;
 
 public class Client {
+    //TEST
+
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException{
 
         Scanner sc = new Scanner(System.in);
