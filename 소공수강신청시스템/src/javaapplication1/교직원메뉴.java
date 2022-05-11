@@ -310,5 +310,9 @@ public class 교직원메뉴 extends javax.swing.JFrame {
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     // End of variables declaration//GEN-END:variables
+    
+    
+    
+    //추가
 
 }
